@@ -26,7 +26,7 @@ void			ft_parse(char *file_name)
 	int			i;
 
 	conf = (t_config *)malloc(sizeof(t_config));
-	fd = ft_check_filename_extension(file_name, ".cub");
+	fd = ft_check_filename_extension(file_name, ".cub", "parse()");
 	while (get_next_line(fd, &line))
 	{
 		i = 0;
@@ -42,7 +42,7 @@ void			ft_parse(char *file_name)
 	}
 	ft_parse_map(fd);
 
-	if (conf->checksum == 6)
+//	if (conf->checksum == 255)
 		printf("mask %d\n", conf->checksum);
 	ft_print_conf(conf);
 	close(fd);
@@ -57,7 +57,12 @@ void			ft_selector(char *line, t_config *conf)
 	if (*line == 'C')
 		conf->color_ceil = ft_get_color(line + 1, conf, 3);
 	if (*line == 'S')
+	{
 		conf->sprite = ft_get_texture(line + 1, conf, 4);
+		// DELTE THIS!
+		printf("path %s", conf->sprite);
+
+	}
 	if (*line == 'N' && *(line + 1) == 'O')
 		conf->NO = ft_get_texture(line + 2, conf, 5);
 	if (*line == 'S' && *(line + 1) == 'O')
@@ -72,6 +77,7 @@ void			ft_get_resolution(char *line, t_config *conf)
 {
 	char		**argv;
 	int			argc;
+	char *name_func = "get_resolution()";
 
 //	if (conf->checksum & (1 << 1))
 //		ft_print_err_exit("dubl R");
@@ -80,11 +86,11 @@ void			ft_get_resolution(char *line, t_config *conf)
 	while (argv[argc] != NULL)
 		argc++;
 	if (argc != 2)
-		ft_print_err_exit("Error in ft_get_resolution() Invalid number of arguments.");
+		ft_print_err_exit("Error in ft_get_resolution() Invalid number of arguments.", name_func);
 	argc = 0;
 	while (argc < 2)
 		if ((!ft_foreach(argv[argc++], ft_isdigit)))
-			ft_print_err_exit("Error in ft_get_resolution() Invalid arguments.");
+			ft_print_err_exit("Error in ft_get_resolution() Invalid arguments.", name_func);
 	conf->r_width = ft_atoi(argv[0]);
 	conf->r_hight = ft_atoi(argv[1]);
 	conf->checksum |= (1 << 1);
@@ -98,22 +104,23 @@ int ft_get_color(char *line, t_config *conf, int pos)
 	char		**argv;
 	char		*tmp;
 	int			i;
+	char *name_func = "get_color()";
 
 	argv = ft_split(line, ',');
 	argc = 0;
 	while (argv[argc] != NULL)
 		argc++;
 	if (argc != 3)
-		ft_print_err_exit("ft_parse_color(): Invalid number of arguments.");
+		ft_print_err_exit("ft_parse_color(): Invalid number of arguments.", name_func);
 	i = 0;
 	while (i < argc)
 	{
 		tmp = ft_strtrim(argv[i], " ");
 		if (!ft_foreach(tmp, ft_isdigit))
-			ft_print_err_exit("ft_parse_color(): Invalid arguments.");
+			ft_print_err_exit("ft_parse_color(): Invalid arguments.", name_func);
 		rgb[i] = ft_atoi(argv[i]);
 		if (rgb[i] > 255 || ft_isempty_str(tmp))
-			ft_print_err_exit("ft_parse_color(): Invalid arguments.");
+			ft_print_err_exit("ft_parse_color(): Invalid arguments.", name_func);
 		free(tmp);
 		i++;
 	}
@@ -126,9 +133,13 @@ char *ft_get_texture(char *line, t_config *conf, int pos)
 {
 	char		**arr;
 	char		*filename;
+	char *name_func = "get_texture()";
+
 
 	arr = ft_split(line, ' ');
-	ft_check_filename_extension(arr[0], ".xpm");
+	// DELTE THIS!
+	printf("path %s\n", arr[0]);
+	ft_check_filename_extension(arr[0], ".xpm", name_func);
 	filename = ft_strdup(arr[0]);
 	free(arr);
 	conf->checksum |= (1 << pos);
